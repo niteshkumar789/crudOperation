@@ -9,7 +9,7 @@
     header('Content-Type: application/json');
     $action = $_POST['action'] ?? '';
 
-    // ****************** USER LOGIN *******************
+    // ========= USER LOGIN =========
     if ($action == 'login') {
         $email = sanitize($conn, $_POST['email'] ?? '');
         $password = sanitize($conn, $_POST['password'] ?? ''); 
@@ -39,11 +39,11 @@
         }
     }
 
-    // ****************** USER LOGOUT ******************
+    // ========= USER LOGOUT =========
     if ($action == 'logout') {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        // if (session_status() === PHP_SESSION_NONE) {
+        //     session_start();
+        // }
 
         // Clear session variables
         $_SESSION = [];
@@ -68,8 +68,7 @@
         sendResponse("success", "Logged out successfully!");
     }
 
-    
-    // ****************** USER REGISTRATION ******************
+    // ========= USER REGISTRATION =========
     if ($action == 'register') {
         $NAME = sanitize($conn, $_POST['NAME'] ?? '');
         $EMAIL = sanitize($conn, $_POST['EMAIL'] ?? '');
@@ -134,13 +133,18 @@
         }
     }
 
-    // ****************** INSERT USER ******************
+    //  👇========= PROTECT ALL ACTIONS BELOW (Require Login) =========👇
+    if (!isset($_SESSION['user_id'])) {
+        sendResponse("unauthorized", "You must be logged in to perform this action.");
+        exit;
+    }
+    // ========= INSERT USER =========
     if ($action == 'insert') {
         // check if login
-        if (!isset($_SESSION['user_id'])) {
-            sendResponse("error", "Need login");
-            // exit;
-        }
+        // if (!isset($_SESSION['user_id'])) {
+        //     sendResponse("error", "Need login");
+        //     // exit;
+        // }
 
         // Sanitize: Trim extra spaces
         $NAME = sanitize($conn, $_POST['NAME'] ?? '');
@@ -192,13 +196,13 @@
         }
     }
 
-    // ****************** DELETE USER ******************
+    // ========= DELETE USER =========
     if ($action == 'delete') {
-        // check if login
-        if (!isset($_SESSION['user_id'])) {
-            sendResponse("error", "Need login");
-            // exit;
-        }
+        // // check if login
+        // if (!isset($_SESSION['user_id'])) {
+        //     sendResponse("error", "Need login");
+        //     // exit;
+        // }
 
         $ID = intval($_POST['id'] ?? 0);
         if ($ID <= 0) sendResponse("error", "Invalid user ID!");
@@ -220,13 +224,13 @@
         }
     }
 
-    // ****************** UPDATE USER ******************
+    // ========= UPDATE USER =========
     if ($action == 'update') {
         // check if login
-        if (!isset($_SESSION['user_id'])) {
-            sendResponse("error", "Need login");
-            // exit;
-        }
+        // if (!isset($_SESSION['user_id'])) {
+        //     sendResponse("error", "Need login");
+        //     // exit;
+        // }
 
         $userRole = $_SESSION['user_role'];
         $userId   = $_SESSION['user_id'];
@@ -297,19 +301,18 @@
         }
     }
 
-    // ****************** BULK USER UPLOAD ******************
+    // ========= BULK USER UPLOAD =========
     if ($action == 'bulk_upload') {
-        // check if login
-        if (!isset($_SESSION['user_id'])) {
-            sendResponse("error", "Need login");
-            // exit;
-        }
+        // // check if login
+        // if (!isset($_SESSION['user_id'])) {
+        //     sendResponse("error", "Need login");
+        //     // exit;
+        // }
         
         // empty field check
         if (empty($_FILES['file']['name'])) {
             sendResponse("error", "Please select a file!");
         }
-        
         
         // file validation
         $file = $_FILES['file'];
@@ -395,9 +398,14 @@
         sendResponse("success", "$successCount users uploaded successfully!");
     }
 
-    // ****************** EXPORT USERS ******************
+    // ========= EXPORT USERS =========
     if ($action == 'export_users') {
-        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
+        // if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
+        //     sendResponse("error", "Access denied! Only admin can export users.");
+        // }
+
+        // Only Admin can export
+        if ($_SESSION['user_role'] != 1) {
             sendResponse("error", "Access denied! Only admin can export users.");
         }
 
@@ -425,9 +433,14 @@
         exit;
     }
 
-    // ****************** GET RECYCLE BIN USERS ******************
+    // ========= GET RECYCLE BIN USERS =========
     if ($action == 'get_recycle_bin') {
-        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
+        // if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
+        //     sendResponse("error", "Access denied! Only admin can view recycle bin.");
+        // }
+
+        // Only Admin can Activate user
+        if ($_SESSION['user_role'] != 1) {
             sendResponse("error", "Access denied! Only admin can view recycle bin.");
         }
 
@@ -450,8 +463,13 @@
         exit;
     }
 
-    // ****************** ACTIVATE USER ******************
+    // ========= ACTIVATE USER =========
     if ($action == 'activate_user') {
+        // if ($_SESSION['user_role'] != 1) {
+        //     sendResponse("error", "Access denied! Only admin activate user.");
+        // }
+
+        // Only Admin can Activate
         $ID = intval($_POST['id'] ?? 0);
         if ($ID <= 0) sendResponse("error", "Invalid user ID!");
 
@@ -463,7 +481,7 @@
         }
     }
 
-    // ****************** SEARCH USER ******************
+    // ========= SEARCH USER =========
     // if ($action == 'search_users') {
     //     $user_role = $_SESSION['user_role'] ?? 0;
     //     $user_id   = $_SESSION['user_id'] ?? 0;
@@ -527,7 +545,7 @@
     //     exit;
     // }
 
-    // ****************** SEARCH USER (with pagination) ******************
+    // ========= SEARCH USER (with pagination) =========
     if ($action == 'search_users') {
         $user_role = $_SESSION['user_role'] ?? 0;
         $user_id   = $_SESSION['user_id'] ?? 0;

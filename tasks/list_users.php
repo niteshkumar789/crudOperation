@@ -3,6 +3,10 @@
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
+    if (!isset($_SESSION['user_id'])) {
+        // sendResponse("unauthorized", "You must be logged in to perform this action.");
+        exit;
+    }
 
     $user_id   = $_SESSION['user_id'];
     $user_role = $_SESSION['user_role'];

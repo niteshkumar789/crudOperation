@@ -16,13 +16,11 @@
             <input type="password" name="PASSWORD"><br><br>
 
             <!-- role selection -->
-            <?php if ($_SESSION['user_role'] == 1): ?>
             <label>Role:</label><br>
             <select name="ROLE">
                 <option value="0">User</option>
                 <option value="1">Admin</option>
             </select><br><br>
-            <?php endif; ?>
             
             <!-- photo -->
             <label>Photo:</label><br>

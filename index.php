@@ -52,7 +52,10 @@
 
 <!-- ================ PHP ================ -->
 <?php
-    session_start();
+    // session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     include 'includes/db.php';
     include 'includes/functions.php';
 
@@ -103,7 +106,7 @@
         ?>
     </main>
     
-    <?php include 'includes/popup.php'; ?> <!-- ✅ Added here -->
+    <?php include 'includes/popup.php'; ?> <!-- popup Added here -->
     <script src="assets/js/main.js"></script>
 </body>
 

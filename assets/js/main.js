@@ -137,24 +137,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     // show popups
                     if (data.status === "success") {
-                        showPopup("success", "Success", data.message);
-                        addForm.reset();
-                    } else {
-                        if (data.message === "You need to login") {
-                            showPopup("error", "Login Alert!", "Your'e loged out", [
-                                {
-                                    text: "OK",
-                                    class: "ok",
-                                    callback: function () {
-                                        closePopup();
-                                        window.location.href = "index.php?page=login";
-                                    }
+                        // addForm.reset();
+                        showPopup("success", "Success", data.message, [
+                            {
+                                text: "OK",
+                                class: "ok",
+                                callback: function () {
+                                    closePopup();
+                                    window.location.href = "index.php?page=list_users";
                                 }
-                            ]);
-                        }
-                        else {
-                            showPopup("error", "Error", data.message);
-                        }
+                            }
+                        ]);
+                    } else {
+                        showPopup("error", "Error", data.message);
                     }
                 })
                 .catch(err => showPopup("error", "Error", "Insert error: " + err));
@@ -416,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //     });
     // }
 
-    // ----------------- Delegated delete handler (works for dynamic rows) -----------------
+    // ====================== Delegated delete handler (works for dynamic rows) ======================
     document.addEventListener("click", function (e) {
         if (e.target && e.target.classList.contains("deleteBtn")) {
             const id = e.target.getAttribute("data-id");

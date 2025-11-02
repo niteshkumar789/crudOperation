@@ -1,8 +1,12 @@
 <?php
-    $ID = isset($_GET['ID']) ? intval($_GET['ID']) : 0;
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
+    if (!isset($_SESSION['user_id'])) {
+        // sendResponse("unauthorized", "You must be logged in to perform this action.");
+        exit;
+    }
+    $ID = isset($_GET['ID']) ? intval($_GET['ID']) : 0;
     include 'includes/db.php';
 
     $user_id = $_SESSION['user_id'];
