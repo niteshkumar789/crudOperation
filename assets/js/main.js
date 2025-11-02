@@ -1,42 +1,124 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // ====================== LOGIN EVENT ======================
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+        loginForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            // _______________ PHP _______________
+            const formData = new FormData(loginForm);
+            formData.append("action", "login");
 
-    // ===== POPUP HANDLER FUNCTION =====
-    function showPopup(type, title, message, buttons = [{ text: "OK", class: "ok", callback: closePopup }]) {
-        const overlay = document.getElementById("popupOverlay");
-        const popupBox = document.getElementById("popupBox");
-        const popupTitle = document.getElementById("popupTitle");
-        const popupMsg = document.getElementById("popupMessage");
-        const popupBtns = document.getElementById("popupButtons");
-        const popupIcon = document.getElementById("popupIcon");
-
-        popupBox.className = "popup " + type; 
-        popupBtns.innerHTML = "";
-
-        let icon = "";
-        if (type === "success") icon = "✓";
-        else if (type === "error") icon = "❌";
-        else if (type === "warning") icon = "⚠️";
-        else icon = "ℹ️"; 
-
-        popupIcon.textContent = icon;
-        popupTitle.textContent = title;
-        popupMsg.textContent = message;
-
-        buttons.forEach(btn => {
-            const button = document.createElement("button");
-            button.textContent = btn.text;
-            button.classList.add(btn.class || "ok");
-            button.onclick = btn.callback;
-            popupBtns.appendChild(button);
+            fetch("ajax/user_actions.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        showPopup("success", "Login Successful", data.message, [
+                            {
+                                text: "OK",
+                                class: "ok",
+                                callback: function () {
+                                    closePopup();
+                                    window.location.href = "index.php?page=home";
+                                }
+                            }
+                        ]);
+                    } else {
+                        showPopup("error", "Login Failed", data.message);
+                    }
+                })
+                .catch(err => showPopup("error", "Error", "Login error: " + err));
         });
-
-        overlay.style.display = "flex";
-    }
-    function closePopup() {
-        document.getElementById("popupOverlay").style.display = "none";
     }
 
-    // ========================================== ADD USER EVENT ==========================================
+    // ====================== LOGOUT EVENT ======================
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            showPopup(
+                "warning",
+                "Confirm Logout",
+                "Are you sure you want to log out?",
+                [
+                    { text: "Cancel", class: "cancel", callback: closePopup },
+                    {
+                        text: "Logout",
+                        class: "delete",
+                        callback: function () {
+                            closePopup();
+
+                            // Send logout request to user_actions.php
+                            fetch("ajax/user_actions.php", {
+                                method: "POST",
+                                body: new URLSearchParams({ action: "logout" })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.status === "success") {
+                                    showPopup("success", "Logged Out", data.message, [
+                                        {
+                                            text: "OK",
+                                            class: "ok",
+                                            callback: function () {
+                                                closePopup();
+                                                window.location.href = "index.php?page=login";
+                                            }
+                                        }
+                                    ]);
+                                } else {
+                                    showPopup("error", "Logout Failed", data.message);
+                                }
+                            })
+                            .catch(err => {
+                                showPopup("error", "Error", "Logout error: " + err);
+                            });
+                        }
+                    }
+                ]
+            );
+        });
+    }
+
+    // ====================== REGISTER EVENT ======================
+    const registerForm = document.getElementById("registerForm");
+    if (registerForm) {
+        registerForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(registerForm);
+            formData.append("action", "register");
+
+            fetch("ajax/user_actions.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        showPopup("success", "Registration Successful", data.message, [
+                            {
+                                text: "OK",
+                                class: "ok",
+                                callback: function () {
+                                    closePopup();
+                                    window.location.href = "index.php?page=login";
+                                }
+                            }
+                        ]);
+                    } else {
+                        showPopup("error", "Error", data.message);
+                    }
+                })
+                .catch(err => showPopup("error", "Error", "Registration error: " + err));
+        });
+    }
+
+    // ====================== ADD USER EVENT ======================
     const addForm = document.getElementById("userForm");
     if (addForm) {
         addForm.addEventListener("submit", function (e) {
@@ -79,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ========================================== DELETE USER EVENT ==========================================
+    // ====================== DELETE USER EVENT ======================
     document.querySelectorAll(".deleteBtn").forEach(btn => {
         btn.addEventListener("click", function () {
             const id = this.getAttribute("data-id");
@@ -126,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ========================================== UPDATE USER EVENT ==========================================
+    // ====================== UPDATE USER EVENT ======================
     const editForm = document.getElementById("editUserForm");
     if (editForm) {
         editForm.addEventListener("submit", function (e) {
@@ -160,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ========================================== BULK UPLOAD EVENT ==========================================
+    // ====================== BULK UPLOAD EVENT ======================
     const bulkUploadForm = document.getElementById("bulkUploadForm");
     if (bulkUploadForm) {
         bulkUploadForm.addEventListener("submit", function (e) {
@@ -186,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ========================================== EXPORT USERS EVENT ==========================================
+    // ====================== EXPORT USERS EVENT ======================
     const exportBtn = document.getElementById("exportBtn");
     if (exportBtn) {
         exportBtn.addEventListener("click", function () {
@@ -214,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ========================================== RECYCLE BIN EVENT ==========================================
+    // ====================== RECYCLE BIN EVENT ======================
     const recycleBinBtn = document.getElementById("recycleBinBtn");
     if (recycleBinBtn) {
         recycleBinBtn.addEventListener("click", function () {
@@ -307,7 +389,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ========================================== SEARCH + FILTER EVENT ==========================================
+    // ====================== SEARCH + FILTER EVENT ======================
     // const searchBtn = document.getElementById("searchBtn");
     // if (searchBtn) {
     //     searchBtn.addEventListener("click", function () {
@@ -382,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ----------------- pagination click (delegated) -----------------
+    // ====================== pagination click (delegated) ======================
     document.addEventListener("click", function (e) {
         if (e.target && e.target.classList.contains("paginationBtn")) {
             e.preventDefault();
@@ -393,7 +475,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ----------------- helper: loadUsers (page, search, role) -----------------
+    // ====================== helper: loadUsers (page, search, role) ======================
     function loadUsers(page = 1, search = "", role = "") {
         const body = new URLSearchParams();
         body.append("action", "search_users");
@@ -428,15 +510,8 @@ document.addEventListener("DOMContentLoaded", function () {
             loadUsers(1, search, role);
         });
     }
-
-    // Optionally, load first page via AJAX on page load to ensure consistent behavior:
-    // Only if you want AJAX-initialized table. If you prefer server-rendered initial table, comment out the next lines.
-    // const initialSearch = document.getElementById("searchInput")?.value || "";
-    // const initialRole = document.getElementById("roleFilter")?.value || "";
-    // loadUsers(1, initialSearch, initialRole);
-
     
-    // ========================================== IMAGE PREVIEW EVENT ==========================================
+    // ====================== IMAGE PREVIEW EVENT ======================
     // For Add User Form
     const photoInput = document.getElementById("photoInput");
     const photoPreviewContainer = document.getElementById("photoPreviewContainer");
@@ -476,7 +551,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ========================================== CLICKABLE FULL IMAGE PREVIEW EVENT ==========================================
+    // ====================== CLICKABLE FULL IMAGE PREVIEW EVENT ======================
     const imagePopupOverlay = document.getElementById("imagePopupOverlay");
     const fullImagePreview = document.getElementById("fullImagePreview");
 
@@ -484,24 +559,20 @@ document.addEventListener("DOMContentLoaded", function () {
         fullImagePreview.src = src;
         imagePopupOverlay.style.display = "flex";
     }
-
     function closeFullImage() {
         imagePopupOverlay.style.display = "none";
         fullImagePreview.src = "";
     }
-
     // Close when clicking anywhere on the overlay
     if (imagePopupOverlay) {
         imagePopupOverlay.addEventListener("click", closeFullImage);
     }
-
     // Make add form preview clickable
     if (photoPreview) {
         photoPreview.addEventListener("click", function () {
             openFullImage(this.src);
         });
     }
-
     // Make edit form preview clickable
     if (editPhotoPreview) {
         editPhotoPreview.addEventListener("click", function () {
@@ -509,124 +580,39 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ====================== POPUP HANDLER FUNCTION ======================
+    function showPopup(type, title, message, buttons = [{ text: "OK", class: "ok", callback: closePopup }]) {
+        const overlay = document.getElementById("popupOverlay");
+        const popupBox = document.getElementById("popupBox");
+        const popupTitle = document.getElementById("popupTitle");
+        const popupMsg = document.getElementById("popupMessage");
+        const popupBtns = document.getElementById("popupButtons");
+        const popupIcon = document.getElementById("popupIcon");
 
-    // ========================================== LOGIN EVENT ==========================================
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            
-            // _______________ PHP _______________
-            const formData = new FormData(loginForm);
-            formData.append("action", "login");
+        popupBox.className = "popup " + type; 
+        popupBtns.innerHTML = "";
 
-            fetch("ajax/user_actions.php", {
-                method: "POST",
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        showPopup("success", "Login Successful", data.message, [
-                            {
-                                text: "OK",
-                                class: "ok",
-                                callback: function () {
-                                    closePopup();
-                                    window.location.href = "index.php?page=home";
-                                }
-                            }
-                        ]);
-                    } else {
-                        showPopup("error", "Login Failed", data.message);
-                    }
-                })
-                .catch(err => showPopup("error", "Error", "Login error: " + err));
+        let icon = "";
+        if (type === "success") icon = "✓";
+        else if (type === "error") icon = "❌";
+        else if (type === "warning") icon = "⚠️";
+        else icon = "ℹ️"; 
+
+        popupIcon.textContent = icon;
+        popupTitle.textContent = title;
+        popupMsg.textContent = message;
+
+        buttons.forEach(btn => {
+            const button = document.createElement("button");
+            button.textContent = btn.text;
+            button.classList.add(btn.class || "ok");
+            button.onclick = btn.callback;
+            popupBtns.appendChild(button);
         });
+
+        overlay.style.display = "flex";
     }
-
-    // ========================================== LOGOUT EVENT ==========================================
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            showPopup(
-                "warning",
-                "Confirm Logout",
-                "Are you sure you want to log out?",
-                [
-                    { text: "Cancel", class: "cancel", callback: closePopup },
-                    {
-                        text: "Logout",
-                        class: "delete",
-                        callback: function () {
-                            closePopup();
-
-                            // Send logout request to user_actions.php
-                            fetch("ajax/user_actions.php", {
-                                method: "POST",
-                                body: new URLSearchParams({ action: "logout" })
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.status === "success") {
-                                    showPopup("success", "Logged Out", data.message, [
-                                        {
-                                            text: "OK",
-                                            class: "ok",
-                                            callback: function () {
-                                                closePopup();
-                                                window.location.href = "index.php?page=login";
-                                            }
-                                        }
-                                    ]);
-                                } else {
-                                    showPopup("error", "Logout Failed", data.message);
-                                }
-                            })
-                            .catch(err => {
-                                showPopup("error", "Error", "Logout error: " + err);
-                            });
-                        }
-                    }
-                ]
-            );
-        });
-    }
-
-
-    // ========================================== REGISTER EVENT ==========================================
-    const registerForm = document.getElementById("registerForm");
-    if (registerForm) {
-        registerForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(registerForm);
-            formData.append("action", "register");
-
-            fetch("ajax/user_actions.php", {
-                method: "POST",
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        showPopup("success", "Registration Successful", data.message, [
-                            {
-                                text: "OK",
-                                class: "ok",
-                                callback: function () {
-                                    closePopup();
-                                    window.location.href = "index.php?page=login";
-                                }
-                            }
-                        ]);
-                    } else {
-                        showPopup("error", "Error", data.message);
-                    }
-                })
-                .catch(err => showPopup("error", "Error", "Registration error: " + err));
-        });
+    function closePopup() {
+        document.getElementById("popupOverlay").style.display = "none";
     }
 });
