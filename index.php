@@ -1,3 +1,55 @@
+<!-- Project Structure
+    ==================
+
+        crudOperation/
+        │
+        ├── index.php
+        ├── assets/
+        │   ├── js/
+        │   │   └── main.js
+        │   └── css/
+        │       └── style.css
+        │
+        ├── includes/
+        │   ├── db.php
+        │   ├── excel_reader.php
+        |   ├── functions.php
+        │   └── popup.php
+        │
+        ├── tasks/
+        │   ├── home.php
+        │   ├── add_user.php
+        │   ├── list_users.php
+        │   ├── edit_user.php
+        │   ├── login.php
+        │   ├── register.php      ← 🆕 NEW FILE
+        │   ├── logout.php
+        │   └── bulk_upload.php        ← 🆕 NEW PAGE for admin upload
+        │
+        ├── ajax/
+        │   └── user_actions.php
+        │
+        └── uploads/
+            └── bulk_files/     ← 🆕 folder to temporarily store uploaded Excel/CSV
+
+        
+        index.php
+        add_user.php
+        bulk_upload.php
+        edit_user.php
+        home.php
+        list_users.php
+        login.php
+        logout.php 
+        register.php
+        db.php
+        excel_reader.php
+        functions.php
+        user_actions.php
+        style.css
+        main.js
+-->
+
 <!-- ================ PHP ================ -->
 <?php
     session_start();
@@ -56,56 +108,3 @@
 </body>
 
 </html>
-
-<!-- 
-        project/
-        │
-        ├── index.php
-        ├── assets/
-        │   ├── js/
-        │   │   └── main.js
-        │   └── css/
-        │       └── style.css
-        │
-        ├── includes/
-        │   ├── db.php
-        │   ├── excel_reader.php
-        |   ├── functions.php
-        │   └── popup.php
-        │
-        ├── tasks/
-        │   ├── home.php
-        │   ├── add_user.php
-        │   ├── list_users.php
-        │   ├── edit_user.php
-        │   ├── login.php
-        │   ├── register.php      ← 🆕 NEW FILE
-        │   ├── logout.php
-        │   └── bulk_upload.php        ← 🆕 NEW PAGE for admin upload
-        │
-        ├── ajax/
-        │   └── user_actions.php
-        │
-        └── uploads/
-            └── bulk_files/     ← 🆕 folder to temporarily store uploaded Excel/CSV
-
--->
-
-<!-- Total: 15
-
-index.php
-add_user.php
-bulk_upload.php
-edit_user.php
-home.php
-list_users.php
-login.php
-logout.php 
-register.php
-db.php
-excel_reader.php
-functions.php
-user_actions.php
-style.css
-main.js
--->

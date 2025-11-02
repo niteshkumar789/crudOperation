@@ -1,26 +1,26 @@
 <?php
-$ID = isset($_GET['ID']) ? intval($_GET['ID']) : 0;
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-include 'includes/db.php';
+    $ID = isset($_GET['ID']) ? intval($_GET['ID']) : 0;
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    include 'includes/db.php';
 
-$user_id = $_SESSION['user_id'];
-$user_role = $_SESSION['user_role'];
+    $user_id = $_SESSION['user_id'];
+    $user_role = $_SESSION['user_role'];
 
-// Restrict normal user to only edit themselves
-if ($user_role == 0 && $ID != $user_id) {
-    echo "<p>Access Denied!</p>";
-    exit;
-}
+    // Restrict normal user to only edit themselves
+    if ($user_role == 0 && $ID != $user_id) {
+        echo "<p>Access Denied!</p>";
+        exit;
+    }
 
-// Fetch user details
-$query = $conn->query("SELECT * FROM users WHERE ID = $ID");
-if ($query->num_rows == 0) {
-    echo "<p>User not found!</p>";
-    exit;
-}
-$user = $query->fetch_assoc();
+    // Fetch user details
+    $query = $conn->query("SELECT * FROM users WHERE ID = $ID");
+    if ($query->num_rows == 0) {
+        echo "<p>User not found!</p>";
+        exit;
+    }
+    $user = $query->fetch_assoc();
 ?>
 
 <!-- ================== EDIT USER FORM ================== -->
@@ -36,9 +36,11 @@ $user = $query->fetch_assoc();
     <!-- email -->
     <label>Email:</label><br>
     <input type="text" 
-       name="EMAIL" 
-       value="<?= htmlspecialchars($user['EMAIL']) ?>" 
-       <?= ($user_role == 0 ? 'readonly' : '') ?>><br><br>
+        name="EMAIL" 
+        value="<?= htmlspecialchars($user['EMAIL']) ?>" 
+        <?= ($user_role == 0 ? 'readonly' : '') ?>
+    >
+    <br><br>
 
     
     <!-- Role (Visible only to Admins) -->
@@ -60,9 +62,12 @@ $user = $query->fetch_assoc();
 
     <!-- Image preview -->
     <div id="editPhotoPreviewContainer">
-        <img id="editPhotoPreview" src="uploads/<?= htmlspecialchars($user['photo']) ?>" alt="Current Photo" 
-             style="max-width:150px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.2);">
-    </div><br>
+        <img id="editPhotoPreview" src="uploads/<?= htmlspecialchars($user['photo']) ?>" 
+        alt="Current Photo" 
+        style="max-width:150px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.2);">
+    </div>
+    
+    <br>
 
     <!-- submit button -->
     <button type="submit">Update User</button>
