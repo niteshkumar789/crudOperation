@@ -28,7 +28,7 @@
                 <a href="index.php?page=bulk_upload">Bulk Upload</a>
             <?php endif; ?>
             <a href="index.php?page=list_users">List Users</a>
-            <a href="index.php?page=logout">Logout</a>
+            <a href="#" id="logoutBtn">Logout</a>
         
         <?php else: ?>
             <a href="index.php?page=login">Login</a>
@@ -39,60 +39,19 @@
     <main>
         <?php
             $page = isset($_GET['page']) ? $_GET['page'] : 'home';
-
             switch ($page) {
-                case 'login':
-                    include 'tasks/login.php';
-                    break;
-                case 'add_user':
-                    include 'tasks/add_user.php';
-                    break;
-                case 'list_users':
-                    include 'tasks/list_users.php';
-                    break;
-                case 'edit_user':
-                    include 'tasks/edit_user.php';
-                    break;
-                case 'logout':
-                    include 'tasks/logout.php';
-                    break;
-                case 'register':
-                    include 'tasks/register.php';
-                    break;
-                case 'bulk_upload':
-                    include 'tasks/bulk_upload.php';
-                    break;
-                default:
-                    include 'tasks/home.php';
-                    break;
+                case 'login': include 'tasks/login.php'; break;
+                case 'add_user': include 'tasks/add_user.php'; break;
+                case 'list_users': include 'tasks/list_users.php'; break;
+                case 'edit_user': include 'tasks/edit_user.php'; break;
+                case 'register': include 'tasks/register.php'; break;
+                case 'bulk_upload': include 'tasks/bulk_upload.php'; break;
+                default: include 'tasks/home.php'; break;
             }
         ?>
-    </main> 
-
-    <!-- Popup Container -->
-    <div class="popup-overlay" id="popupOverlay">
-    <div class="popup" id="popupBox">
-        <div class="popup-icon" id="popupIcon"></div>
-        <h3 id="popupTitle"></h3>
-        <p id="popupMessage"></p>
-        <div id="popupButtons"></div>
-    </div>
-    </div>
-
-    <!-- Full Image Preview Popup -->
-    <div id="imagePopupOverlay" style="
-        display:none; 
-        position:fixed; 
-        top:0; left:0; right:0; bottom:0; 
-        background:rgba(0,0,0,0.8); 
-        justify-content:center; 
-        align-items:center;
-        z-index:9999;
-    ">
-    <img id="fullImagePreview" src="" 
-        style="max-width:90%; max-height:90%; border-radius:10px; box-shadow:0 0 15px rgba(255,255,255,0.3); cursor:pointer;">
-    </div>
-
+    </main>
+    
+    <?php include 'includes/popup.php'; ?> <!-- ✅ Added here -->
     <script src="assets/js/main.js"></script>
 </body>
 
@@ -110,8 +69,9 @@
         │
         ├── includes/
         │   ├── db.php
-        │   ├── functions.php
-        │   └── excel_reader.php
+        │   ├── excel_reader.php
+        |   ├── functions.php
+        │   └── popup.php
         │
         ├── tasks/
         │   ├── home.php

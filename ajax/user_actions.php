@@ -1,4 +1,8 @@
 <?php
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
     include '../includes/db.php';
     include '../includes/functions.php';
     include '../includes/excel_reader.php';
@@ -8,7 +12,7 @@
     // ****************** USER LOGIN *******************
     if ($action == 'login') {
         $email = sanitize($conn, $_POST['email'] ?? '');
-        $password = sanitize($conn, $_POST['password'] ?? '');
+        $password = sanitize($conn, $_POST['password'] ?? ''); 
 
         // field validation
         if (empty($email) || empty($password)) {
@@ -21,7 +25,7 @@
 
             // password verification
             if (password_verify($password, $user['password'])) {
-                session_start();
+                // session_start(); // Session already started at top, just store user info
                 $_SESSION['user_id'] = $user['ID'];
                 $_SESSION['user_name'] = $user['NAME'];
                 $_SESSION['user_role'] = $user['role'];
@@ -35,6 +39,36 @@
         }
     }
 
+    // ****************** USER LOGOUT ******************
+    if ($action == 'logout') {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Clear session variables
+        $_SESSION = [];
+        // session_unset(); // or use this
+
+        // Delete session cookie
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+
+        // Prevent browser from caching old pages
+        // header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        // header("Pragma: no-cache");
+        // header("Expires: 0");
+
+        // Destroy session
+        session_destroy();
+        sendResponse("success", "Logged out successfully!");
+    }
+
+    
     // ****************** USER REGISTRATION ******************
     if ($action == 'register') {
         $NAME = sanitize($conn, $_POST['NAME'] ?? '');
@@ -102,6 +136,12 @@
 
     // ****************** INSERT USER ******************
     if ($action == 'insert') {
+        // check if login
+        if (!isset($_SESSION['user_id'])) {
+            sendResponse("error", "Need login");
+            // exit;
+        }
+
         // Sanitize: Trim extra spaces
         $NAME = sanitize($conn, $_POST['NAME'] ?? '');
         $EMAIL = sanitize($conn, $_POST['EMAIL'] ?? '');
@@ -154,6 +194,12 @@
 
     // ****************** DELETE USER ******************
     if ($action == 'delete') {
+        // check if login
+        if (!isset($_SESSION['user_id'])) {
+            sendResponse("error", "Need login");
+            // exit;
+        }
+
         $ID = intval($_POST['id'] ?? 0);
         if ($ID <= 0) sendResponse("error", "Invalid user ID!");
 
@@ -176,7 +222,12 @@
 
     // ****************** UPDATE USER ******************
     if ($action == 'update') {
-        session_start();
+        // check if login
+        if (!isset($_SESSION['user_id'])) {
+            sendResponse("error", "Need login");
+            // exit;
+        }
+
         $userRole = $_SESSION['user_role'];
         $userId   = $_SESSION['user_id'];
 
@@ -248,24 +299,32 @@
 
     // ****************** BULK USER UPLOAD ******************
     if ($action == 'bulk_upload') {
-        // session_start();
-        // if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
-        //     sendResponse("error", "Unauthorized! Only admin can upload.");
-        // }
-
-        if (empty($_FILES['file']['name']))
+        // check if login
+        if (!isset($_SESSION['user_id'])) {
+            sendResponse("error", "Need login");
+            // exit;
+        }
+        
+        // empty field check
+        if (empty($_FILES['file']['name'])) {
             sendResponse("error", "Please select a file!");
-
+        }
+        
+        
+        // file validation
         $file = $_FILES['file'];
         $allowed = ['application/vnd.ms-excel', 'text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
 
-        if (!in_array($file['type'], $allowed) && !in_array($ext, ['csv', 'xlsx']))
+        if (!in_array($file['type'], $allowed) && !in_array($ext, ['csv', 'xlsx'])) {
             sendResponse("error", "Invalid file type! Only Excel or CSV allowed.");
+        }
 
+        // move in to temporary folder
         $target = "../uploads/bulk_files/" . time() . "_" . basename($file['name']);
-        if (!move_uploaded_file($file['tmp_name'], $target))
+        if (!move_uploaded_file($file['tmp_name'], $target)) {
             sendResponse("error", "Failed to upload file!");
+        }
 
         $rows = [];
 
@@ -338,7 +397,6 @@
 
     // ****************** EXPORT USERS ******************
     if ($action == 'export_users') {
-        session_start();
         if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
             sendResponse("error", "Access denied! Only admin can export users.");
         }
@@ -369,7 +427,6 @@
 
     // ****************** GET RECYCLE BIN USERS ******************
     if ($action == 'get_recycle_bin') {
-        session_start();
         if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
             sendResponse("error", "Access denied! Only admin can view recycle bin.");
         }
@@ -408,7 +465,6 @@
 
     // ****************** SEARCH USER ******************
     // if ($action == 'search_users') {
-    //     session_start();
     //     $user_role = $_SESSION['user_role'] ?? 0;
     //     $user_id   = $_SESSION['user_id'] ?? 0;
 
@@ -473,7 +529,6 @@
 
     // ****************** SEARCH USER (with pagination) ******************
     if ($action == 'search_users') {
-        session_start();
         $user_role = $_SESSION['user_role'] ?? 0;
         $user_id   = $_SESSION['user_id'] ?? 0;
 

@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const popupBtns = document.getElementById("popupButtons");
         const popupIcon = document.getElementById("popupIcon");
 
-        popupBox.className = "popup " + type;
+        popupBox.className = "popup " + type; 
         popupBtns.innerHTML = "";
 
         let icon = "";
@@ -52,13 +52,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(res => res.json())
                 .then(data => {
 
-                  
+
                     // show popups
                     if (data.status === "success") {
                         showPopup("success", "Success", data.message);
                         addForm.reset();
                     } else {
-                        showPopup("error", "Error", data.message);
+                        if (data.message === "You need to login") {
+                            showPopup("error", "Login Alert!", "Your'e loged out", [
+                                {
+                                    text: "OK",
+                                    class: "ok",
+                                    callback: function () {
+                                        closePopup();
+                                        window.location.href = "index.php?page=login";
+                                    }
+                                }
+                            ]);
+                        }
+                        else {
+                            showPopup("error", "Error", data.message);
+                        }
                     }
                 })
                 .catch(err => showPopup("error", "Error", "Insert error: " + err));
@@ -530,6 +544,57 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(err => showPopup("error", "Error", "Login error: " + err));
         });
     }
+
+    // ========================================== LOGOUT EVENT ==========================================
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            showPopup(
+                "warning",
+                "Confirm Logout",
+                "Are you sure you want to log out?",
+                [
+                    { text: "Cancel", class: "cancel", callback: closePopup },
+                    {
+                        text: "Logout",
+                        class: "delete",
+                        callback: function () {
+                            closePopup();
+
+                            // Send logout request to user_actions.php
+                            fetch("ajax/user_actions.php", {
+                                method: "POST",
+                                body: new URLSearchParams({ action: "logout" })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.status === "success") {
+                                    showPopup("success", "Logged Out", data.message, [
+                                        {
+                                            text: "OK",
+                                            class: "ok",
+                                            callback: function () {
+                                                closePopup();
+                                                window.location.href = "index.php?page=login";
+                                            }
+                                        }
+                                    ]);
+                                } else {
+                                    showPopup("error", "Logout Failed", data.message);
+                                }
+                            })
+                            .catch(err => {
+                                showPopup("error", "Error", "Logout error: " + err);
+                            });
+                        }
+                    }
+                ]
+            );
+        });
+    }
+
 
     // ========================================== REGISTER EVENT ==========================================
     const registerForm = document.getElementById("registerForm");
