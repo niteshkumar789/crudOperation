@@ -146,76 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-
-    // ========================================== LOGIN EVENT ==========================================
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            
-            // _______________ PHP _______________
-            const formData = new FormData(loginForm);
-            formData.append("action", "login");
-
-            fetch("ajax/user_actions.php", {
-                method: "POST",
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        showPopup("success", "Login Successful", data.message, [
-                            {
-                                text: "OK",
-                                class: "ok",
-                                callback: function () {
-                                    closePopup();
-                                    window.location.href = "index.php?page=home";
-                                }
-                            }
-                        ]);
-                    } else {
-                        showPopup("error", "Login Failed", data.message);
-                    }
-                })
-                .catch(err => showPopup("error", "Error", "Login error: " + err));
-        });
-    }
-
-    // ========================================== REGISTER EVENT ==========================================
-    const registerForm = document.getElementById("registerForm");
-    if (registerForm) {
-        registerForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(registerForm);
-            formData.append("action", "register");
-
-            fetch("ajax/user_actions.php", {
-                method: "POST",
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        showPopup("success", "Registration Successful", data.message, [
-                            {
-                                text: "OK",
-                                class: "ok",
-                                callback: function () {
-                                    closePopup();
-                                    window.location.href = "index.php?page=login";
-                                }
-                            }
-                        ]);
-                    } else {
-                        showPopup("error", "Error", data.message);
-                    }
-                })
-                .catch(err => showPopup("error", "Error", "Registration error: " + err));
-        });
-    }
-
     // ========================================== BULK UPLOAD EVENT ==========================================
     const bulkUploadForm = document.getElementById("bulkUploadForm");
     if (bulkUploadForm) {
@@ -391,107 +321,106 @@ document.addEventListener("DOMContentLoaded", function () {
     // }
 
     // ----------------- Delegated delete handler (works for dynamic rows) -----------------
-document.addEventListener("click", function (e) {
-    if (e.target && e.target.classList.contains("deleteBtn")) {
-        const id = e.target.getAttribute("data-id");
+    document.addEventListener("click", function (e) {
+        if (e.target && e.target.classList.contains("deleteBtn")) {
+            const id = e.target.getAttribute("data-id");
 
-        showPopup(
-            "warning",
-            "Confirm Delete",
-            "Are you sure you want to delete this user?",
-            [
-                { text: "Cancel", class: "cancel", callback: closePopup },
-                {
-                    text: "Delete",
-                    class: "delete",
-                    callback: function () {
-                        const formData = new FormData();
-                        formData.append("action", "delete");
-                        formData.append("id", id);
-                        fetch("ajax/user_actions.php", {
-                            method: "POST",
-                            body: formData
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === "success") {
-                                showPopup("success", "Deleted", data.message, [{
-                                    text: "OK",
-                                    class: "ok",
-                                    callback: function () {
-                                        closePopup();
-                                        // reload current table page by triggering search (keeps filters)
-                                        const search = document.getElementById("searchInput")?.value || "";
-                                        const role = document.getElementById("roleFilter")?.value || "";
-                                        loadUsers(1, search, role);
-                                    }
-                                }]);
-                            } else {
-                                showPopup("error", "Error", data.message);
-                            }
-                        })
-                        .catch(err => showPopup("error", "Error", "Delete error: " + err));
+            showPopup(
+                "warning",
+                "Confirm Delete",
+                "Are you sure you want to delete this user?",
+                [
+                    { text: "Cancel", class: "cancel", callback: closePopup },
+                    {
+                        text: "Delete",
+                        class: "delete",
+                        callback: function () {
+                            const formData = new FormData();
+                            formData.append("action", "delete");
+                            formData.append("id", id);
+                            fetch("ajax/user_actions.php", {
+                                method: "POST",
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.status === "success") {
+                                    showPopup("success", "Deleted", data.message, [{
+                                        text: "OK",
+                                        class: "ok",
+                                        callback: function () {
+                                            closePopup();
+                                            // reload current table page by triggering search (keeps filters)
+                                            const search = document.getElementById("searchInput")?.value || "";
+                                            const role = document.getElementById("roleFilter")?.value || "";
+                                            loadUsers(1, search, role);
+                                        }
+                                    }]);
+                                } else {
+                                    showPopup("error", "Error", data.message);
+                                }
+                            })
+                            .catch(err => showPopup("error", "Error", "Delete error: " + err));
+                        }
                     }
-                }
-            ]
-        );
-    }
-});
-
-// ----------------- pagination click (delegated) -----------------
-document.addEventListener("click", function (e) {
-    if (e.target && e.target.classList.contains("paginationBtn")) {
-        e.preventDefault();
-        const page = e.target.getAttribute("data-page") || 1;
-        const search = document.getElementById("searchInput")?.value || "";
-        const role = document.getElementById("roleFilter")?.value || "";
-        loadUsers(page, search, role);
-    }
-});
-
-// ----------------- helper: loadUsers (page, search, role) -----------------
-function loadUsers(page = 1, search = "", role = "") {
-    const body = new URLSearchParams();
-    body.append("action", "search_users");
-    body.append("page", page);
-    body.append("search", search);
-    body.append("role", role);
-
-    fetch("ajax/user_actions.php", {
-        method: "POST",
-        body: body
-    })
-    .then(res => res.text())
-    .then(html => {
-        const container = document.getElementById("userTableContainer");
-        if (container) {
-            container.innerHTML = html;
-            // re-enable image click -> openFullImage works because server HTML uses onclick to call it
-            // No need to rebind delete/pagination because we use delegated handlers
+                ]
+            );
         }
-    })
-    .catch(err => {
-        showPopup("error", "Error", "Failed to load users: " + err);
     });
-}
 
-// Modify search button to use loadUsers(1)
-const searchBtn = document.getElementById("searchBtn");
-if (searchBtn) {
-    searchBtn.addEventListener("click", function () {
-        const search = document.getElementById("searchInput").value.trim();
-        const role = document.getElementById("roleFilter").value.trim();
-        loadUsers(1, search, role);
+    // ----------------- pagination click (delegated) -----------------
+    document.addEventListener("click", function (e) {
+        if (e.target && e.target.classList.contains("paginationBtn")) {
+            e.preventDefault();
+            const page = e.target.getAttribute("data-page") || 1;
+            const search = document.getElementById("searchInput")?.value || "";
+            const role = document.getElementById("roleFilter")?.value || "";
+            loadUsers(page, search, role);
+        }
     });
-}
 
-// Optionally, load first page via AJAX on page load to ensure consistent behavior:
-// Only if you want AJAX-initialized table. If you prefer server-rendered initial table, comment out the next lines.
-// const initialSearch = document.getElementById("searchInput")?.value || "";
-// const initialRole = document.getElementById("roleFilter")?.value || "";
-// loadUsers(1, initialSearch, initialRole);
+    // ----------------- helper: loadUsers (page, search, role) -----------------
+    function loadUsers(page = 1, search = "", role = "") {
+        const body = new URLSearchParams();
+        body.append("action", "search_users");
+        body.append("page", page);
+        body.append("search", search);
+        body.append("role", role);
 
-    
+        fetch("ajax/user_actions.php", {
+            method: "POST",
+            body: body
+        })
+        .then(res => res.text())
+        .then(html => {
+            const container = document.getElementById("userTableContainer");
+            if (container) {
+                container.innerHTML = html;
+                // re-enable image click -> openFullImage works because server HTML uses onclick to call it
+                // No need to rebind delete/pagination because we use delegated handlers
+            }
+        })
+        .catch(err => {
+            showPopup("error", "Error", "Failed to load users: " + err);
+        });
+    }
+
+    // Modify search button to use loadUsers(1)
+    const searchBtn = document.getElementById("searchBtn");
+    if (searchBtn) {
+        searchBtn.addEventListener("click", function () {
+            const search = document.getElementById("searchInput").value.trim();
+            const role = document.getElementById("roleFilter").value.trim();
+            loadUsers(1, search, role);
+        });
+    }
+
+    // Optionally, load first page via AJAX on page load to ensure consistent behavior:
+    // Only if you want AJAX-initialized table. If you prefer server-rendered initial table, comment out the next lines.
+    // const initialSearch = document.getElementById("searchInput")?.value || "";
+    // const initialRole = document.getElementById("roleFilter")?.value || "";
+    // loadUsers(1, initialSearch, initialRole);
+
     
     // ========================================== IMAGE PREVIEW EVENT ==========================================
     // For Add User Form
@@ -566,4 +495,73 @@ if (searchBtn) {
         });
     }
 
+
+    // ========================================== LOGIN EVENT ==========================================
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+        loginForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            // _______________ PHP _______________
+            const formData = new FormData(loginForm);
+            formData.append("action", "login");
+
+            fetch("ajax/user_actions.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        showPopup("success", "Login Successful", data.message, [
+                            {
+                                text: "OK",
+                                class: "ok",
+                                callback: function () {
+                                    closePopup();
+                                    window.location.href = "index.php?page=home";
+                                }
+                            }
+                        ]);
+                    } else {
+                        showPopup("error", "Login Failed", data.message);
+                    }
+                })
+                .catch(err => showPopup("error", "Error", "Login error: " + err));
+        });
+    }
+
+    // ========================================== REGISTER EVENT ==========================================
+    const registerForm = document.getElementById("registerForm");
+    if (registerForm) {
+        registerForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(registerForm);
+            formData.append("action", "register");
+
+            fetch("ajax/user_actions.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        showPopup("success", "Registration Successful", data.message, [
+                            {
+                                text: "OK",
+                                class: "ok",
+                                callback: function () {
+                                    closePopup();
+                                    window.location.href = "index.php?page=login";
+                                }
+                            }
+                        ]);
+                    } else {
+                        showPopup("error", "Error", data.message);
+                    }
+                })
+                .catch(err => showPopup("error", "Error", "Registration error: " + err));
+        });
+    }
 });
