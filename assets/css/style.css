@@ -226,3 +226,95 @@ input[readonly] {
 .register-para {
     margin-top: 10px;
 }
+
+
+
+/* ====== ADD USER PAGE STYLES ====== */
+.add-user-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #f9f9f9;
+}
+.add-user-container {
+    background: #fff;
+    padding: 30px 35px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    width: 450px;
+}
+.add-user-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 5px;
+}
+.add-user-container label {
+    font-weight: bold;
+    color: #444;
+}
+.add-user-container input[type="text"],
+.add-user-container input[type="password"],
+.add-user-container input[type="file"],
+.add-user-container select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.add-user-container input:focus,
+.add-user-container select:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 5px rgba(37,117,252,0.3);
+}
+.add-user-btn {
+    width: 100%;
+    background: #2575fc;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+.add-user-btn:hover {
+    background: #1a5edc;
+}
+#photoPreviewContainer {
+    text-align: center;
+}
+#photoPreview {
+    max-width: 150px;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
+
+
+/* ====== BULK UPLOAD STYLING====== */
+.bulk-upload-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.bulk-upload-container {
+    background:#fff;
+    padding:40px;
+    border-radius:12px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.25);
+    width:400px;
+    text-align:center;
+}
+.bulk-upload-btn {
+    width:100%;
+    background:#007bff;
+    color:white;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
+}

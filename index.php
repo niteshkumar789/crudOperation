@@ -1,3 +1,4 @@
+<!-- ================ PHP ================ -->
 <?php
     session_start();
     include 'includes/db.php';
@@ -28,6 +29,7 @@
             <?php endif; ?>
             <a href="index.php?page=list_users">List Users</a>
             <a href="index.php?page=logout">Logout</a>
+        
         <?php else: ?>
             <a href="index.php?page=login">Login</a>
             <a href="index.php?page=register">Create Account</a>
