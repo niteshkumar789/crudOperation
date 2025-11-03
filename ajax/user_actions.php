@@ -41,10 +41,6 @@
 
     // ========= USER LOGOUT =========
     if ($action == 'logout') {
-        // if (session_status() === PHP_SESSION_NONE) {
-        //     session_start();
-        // }
-
         // Clear session variables
         $_SESSION = [];
         // session_unset(); // or use this
@@ -59,9 +55,9 @@
         }
 
         // Prevent browser from caching old pages
-        // header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-        // header("Pragma: no-cache");
-        // header("Expires: 0");
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+        header("Expires: 0");
 
         // Destroy session
         session_destroy();
@@ -133,19 +129,14 @@
         }
     }
 
-    //  👇========= PROTECT ALL ACTIONS BELOW (Require Login) =========👇
+    //  ========= PROTECT ALL ACTIONS BELOW (Require Login) =========
     if (!isset($_SESSION['user_id'])) {
         sendResponse("unauthorized", "You must be logged in to perform this action.");
         exit;
     }
+
     // ========= INSERT USER =========
     if ($action == 'insert') {
-        // check if login
-        // if (!isset($_SESSION['user_id'])) {
-        //     sendResponse("error", "Need login");
-        //     // exit;
-        // }
-
         // Sanitize: Trim extra spaces
         $NAME = sanitize($conn, $_POST['NAME'] ?? '');
         $EMAIL = sanitize($conn, $_POST['EMAIL'] ?? '');
@@ -198,12 +189,6 @@
 
     // ========= DELETE USER =========
     if ($action == 'delete') {
-        // // check if login
-        // if (!isset($_SESSION['user_id'])) {
-        //     sendResponse("error", "Need login");
-        //     // exit;
-        // }
-
         $ID = intval($_POST['id'] ?? 0);
         if ($ID <= 0) sendResponse("error", "Invalid user ID!");
 
@@ -226,12 +211,6 @@
 
     // ========= UPDATE USER =========
     if ($action == 'update') {
-        // check if login
-        // if (!isset($_SESSION['user_id'])) {
-        //     sendResponse("error", "Need login");
-        //     // exit;
-        // }
-
         $userRole = $_SESSION['user_role'];
         $userId   = $_SESSION['user_id'];
 
@@ -302,13 +281,7 @@
     }
 
     // ========= BULK USER UPLOAD =========
-    if ($action == 'bulk_upload') {
-        // // check if login
-        // if (!isset($_SESSION['user_id'])) {
-        //     sendResponse("error", "Need login");
-        //     // exit;
-        // }
-        
+    if ($action == 'bulk_upload') {    
         // empty field check
         if (empty($_FILES['file']['name'])) {
             sendResponse("error", "Please select a file!");
@@ -400,10 +373,6 @@
 
     // ========= EXPORT USERS =========
     if ($action == 'export_users') {
-        // if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
-        //     sendResponse("error", "Access denied! Only admin can export users.");
-        // }
-
         // Only Admin can export
         if ($_SESSION['user_role'] != 1) {
             sendResponse("error", "Access denied! Only admin can export users.");
@@ -435,10 +404,6 @@
 
     // ========= GET RECYCLE BIN USERS =========
     if ($action == 'get_recycle_bin') {
-        // if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 1) {
-        //     sendResponse("error", "Access denied! Only admin can view recycle bin.");
-        // }
-
         // Only Admin can Activate user
         if ($_SESSION['user_role'] != 1) {
             sendResponse("error", "Access denied! Only admin can view recycle bin.");
@@ -465,10 +430,6 @@
 
     // ========= ACTIVATE USER =========
     if ($action == 'activate_user') {
-        // if ($_SESSION['user_role'] != 1) {
-        //     sendResponse("error", "Access denied! Only admin activate user.");
-        // }
-
         // Only Admin can Activate
         $ID = intval($_POST['id'] ?? 0);
         if ($ID <= 0) sendResponse("error", "Invalid user ID!");
@@ -481,71 +442,7 @@
         }
     }
 
-    // ========= SEARCH USER =========
-    // if ($action == 'search_users') {
-    //     $user_role = $_SESSION['user_role'] ?? 0;
-    //     $user_id   = $_SESSION['user_id'] ?? 0;
-
-    //     $search = sanitize($conn, $_POST['search'] ?? '');
-    //     $role   = sanitize($conn, $_POST['role'] ?? '');
-
-    //     // Build base query
-    //     if ($user_role == 1) {
-    //         $sql = "SELECT * FROM users WHERE STATUS = 1";
-    //     } else {
-    //         $sql = "SELECT * FROM users WHERE ID = $user_id AND STATUS = 1";
-    //     }
-
-    //     // Add search and filter conditions dynamically
-    //     if (!empty($search)) {
-    //         $sql .= " AND (NAME LIKE '%$search%' OR EMAIL LIKE '%$search%')";
-    //     }
-    //     if (!empty($role)) {
-    //         $roleVal = ($role == 'admin') ? 1 : 0;
-    //         $sql .= " AND role = $roleVal";
-    //     }
-
-    //     $sql .= " ORDER BY ID DESC";
-    //     $result = $conn->query($sql);
-
-    //     if ($result->num_rows > 0) {
-    //         $serial = 1;
-    //         echo "<table>";
-    //         echo "<tr>
-    //                 <th>S.No</th>
-    //                 <th>Name</th>
-    //                 <th>Email</th>
-    //                 <th>Photo</th>
-    //                 <th>Role</th>
-    //                 <th>Action</th>
-    //             </tr>";
-
-    //         while ($row = $result->fetch_assoc()) {
-    //             $photoPath = $row['photo'] ? "uploads/" . $row['photo'] : "assets/img/default.png";
-    //             $roleLabel = $row['role'] == 1 ? "Admin" : "User";
-
-    //             echo "<tr>";
-    //             echo "<td>" . $serial++ . "</td>";
-    //             echo "<td>{$row['NAME']}</td>";
-    //             echo "<td>{$row['EMAIL']}</td>";
-    //             echo "<td><img src='$photoPath' width='50' height='50'></td>";
-    //             echo "<td>$roleLabel</td>";
-    //             echo "<td>";
-    //             echo "<a href='index.php?page=edit_user&ID={$row['ID']}'>Edit</a>";
-    //             if ($user_role == 1) {
-    //                 echo " | <button class='deleteBtn' data-id='{$row['ID']}'>Delete</button>";
-    //             }
-    //             echo "</td></tr>";
-    //         }
-
-    //         echo "</table>";
-    //     } else {
-    //         echo "<p>No users found.</p>";
-    //     }
-    //     exit;
-    // }
-
-    // ========= SEARCH USER (with pagination) =========
+    // =========  PAGINATION (SEARCH USER) =========
     if ($action == 'search_users') {
         $user_role = $_SESSION['user_role'] ?? 0;
         $user_id   = $_SESSION['user_id'] ?? 0;
@@ -571,7 +468,7 @@
         if (!empty($role)) {
             $roleVal = ($role == 'admin') ? 1 : 0;
             $where .= " AND role = $roleVal";
-        }
+        } 
 
         // total count for filtered results
         $countSql = "SELECT COUNT(*) as total FROM users $where";
